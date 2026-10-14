@@ -21,7 +21,7 @@ Open http://localhost:3000 in your browser. Keep the server terminal running. St
 * `public/style.css`: Styling and responsive layout.
 * `public/script.js`: Form handling, API requests and rendering.
 * `server.js`: Starts the local server.
-* `app.js`: API routes and input validation.
+* `project-api.js`: API routes and input validation.
 * `database.js`: SQLite database operations.
 
 ## Storage and Data Persistence

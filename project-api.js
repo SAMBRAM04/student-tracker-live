@@ -1,6 +1,6 @@
 import express from 'express';
-export function createApp(db) {
-  const app = express();
+
+export function configureApp(app, db) {
   app.use(express.json({ limit: '10kb' }));
   app.use(express.static('public'));
   app.get('/api/health', (req, res) => res.json({ ok: true }));
