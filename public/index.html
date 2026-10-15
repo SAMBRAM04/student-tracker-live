@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,49 +8,197 @@
   <script src="script.js" defer></script>
 </head>
 <body>
-  <main>
-    <header>
-      <h1>Student Project Tracker</h1>
-      <p>Track our electronics project ideas.</p>
+  <div class="app-container">
+    <header class="main-header">
+      <div class="header-top">
+        <div class="brand">
+          <div class="brand-badge" aria-hidden="true">⚡</div>
+          <div>
+            <p class="eyebrow">Electronics Workshop & Lab</p>
+            <h1>Student Project Tracker</h1>
+            <p class="tagline">Track, build, and showcase your hardware & software ideas.</p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button id="theme-toggle" type="button" class="icon-btn" title="Toggle dark / light theme" aria-label="Toggle theme">
+            <span id="theme-icon" aria-hidden="true">🌙</span>
+          </button>
+          <button id="export-button" type="button" class="btn secondary-btn" title="Export projects to JSON">
+            <span aria-hidden="true">📥</span> Export JSON
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Project Metrics & Progress -->
+      <section class="stats-card" aria-label="Project Statistics">
+        <div id="project-stats" class="stats-grid">
+          <div class="stat-pill total">
+            <span class="stat-value" id="stat-total">0</span>
+            <span class="stat-name">Total Projects</span>
+          </div>
+          <div class="stat-pill planned">
+            <span class="stat-value" id="stat-planned">0</span>
+            <span class="stat-name">Planned</span>
+          </div>
+          <div class="stat-pill in-progress">
+            <span class="stat-value" id="stat-progress">0</span>
+            <span class="stat-name">In Progress</span>
+          </div>
+          <div class="stat-pill completed">
+            <span class="stat-value" id="stat-completed">0</span>
+            <span class="stat-name">Completed</span>
+          </div>
+        </div>
+
+        <div class="completion-bar-container">
+          <div class="completion-header">
+            <span class="completion-label">Workshop Completion Rate</span>
+            <span class="completion-percent" id="completion-percent">0%</span>
+          </div>
+          <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progress-bar">
+            <div class="progress-fill" id="progress-fill" style="width: 0%;"></div>
+          </div>
+        </div>
+      </section>
     </header>
 
-    <section aria-labelledby="form-title">
-      <h2 id="form-title">Add a Project</h2>
-
-      <form id="project-form">
-        <div>
-          <label for="name">Project Name</label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            required
-            maxlength="80"
-          >
+    <main>
+      <!-- Project Creation / Edit Form -->
+      <section class="card form-section" aria-labelledby="form-title">
+        <div class="section-header">
+          <h2 id="form-title"><span class="section-icon" aria-hidden="true">📝</span> Add a Project</h2>
+          <span class="badge" id="form-mode-badge">New Entry</span>
         </div>
 
-        <div>
-          <label for="status">Project Status</label>
-          <select id="status" name="status">
-            <option value="Planned">Planned</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Completed">Completed</option>
-          </select>
+        <form id="project-form">
+          <div class="form-grid">
+            <div class="form-group span-2">
+              <div class="label-row">
+                <label for="name">Project Name <span class="required">*</span></label>
+                <span class="char-counter" id="char-counter">0 / 80</span>
+              </div>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                required
+                maxlength="80"
+                placeholder="e.g. IoT Plant Monitor, Autonomous Robot, Smart Home Hub..."
+                autocomplete="off"
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="status">Project Status <span class="required">*</span></label>
+              <select id="status" name="status">
+                <option value="Planned">🔵 Planned</option>
+                <option value="In Progress">🟠 In Progress</option>
+                <option value="Completed">🟢 Completed</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="priority">Priority Level</label>
+              <select id="priority" name="priority">
+                <option value="Low">🟢 Low</option>
+                <option value="Medium" selected>🟡 Medium</option>
+                <option value="High">🔴 High</option>
+              </select>
+            </div>
+
+            <div class="form-group span-2">
+              <label for="description">Short Description <span class="optional">(Optional)</span></label>
+              <textarea
+                id="description"
+                name="description"
+                rows="2"
+                maxlength="500"
+                placeholder="Brief summary of components, microcontroller, sensors, or objectives..."
+              ></textarea>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button id="save-button" type="submit" class="btn primary-btn">
+              <span class="btn-icon" aria-hidden="true">＋</span> Add Project
+            </button>
+            <button id="cancel-button" type="button" class="btn cancel-btn" hidden>
+              Cancel Edit
+            </button>
+          </div>
+        </form>
+
+        <p id="message" role="status" aria-live="polite"></p>
+      </section>
+
+      <!-- Projects Listing & Search/Filter Controls -->
+      <section class="card list-section" aria-labelledby="list-title">
+        <div class="section-header list-header-row">
+          <div class="title-with-count">
+            <h2 id="list-title"><span class="section-icon" aria-hidden="true">🚀</span> Your Projects</h2>
+            <span class="count-pill" id="showing-count">0</span>
+          </div>
         </div>
 
-        <button id="save-button" type="submit">Add Project</button>
-        <button id="cancel-button" type="button" hidden>Cancel</button>
-      </form>
+        <!-- Filter & Search Toolbar -->
+        <div class="toolbar">
+          <div class="search-box">
+            <span class="search-icon" aria-hidden="true">🔍</span>
+            <input
+              type="search"
+              id="search-input"
+              placeholder="Search by name, description, priority..."
+              aria-label="Search projects"
+            >
+          </div>
 
-      <p id="message" role="status" aria-live="polite"></p>
-    </section>
+          <div class="filter-controls">
+            <div class="filter-group">
+              <label for="filter-status">Status:</label>
+              <select id="filter-status">
+                <option value="ALL">All Statuses</option>
+                <option value="Planned">Planned</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+              </select>
+            </div>
 
-    <section aria-labelledby="list-title">
-      <h2 id="list-title">Your Projects</h2>
-      <p id="empty-state">No projects yet. Add your first project!</p>
-      <ul id="project-list"></ul>
-    </section>
-  </main>
+            <div class="filter-group">
+              <label for="filter-priority">Priority:</label>
+              <select id="filter-priority">
+                <option value="ALL">All Priorities</option>
+                <option value="High">🔴 High</option>
+                <option value="Medium">🟡 Medium</option>
+                <option value="Low">🟢 Low</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label for="sort-select">Sort By:</label>
+              <select id="sort-select">
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="az">Name (A → Z)</option>
+                <option value="za">Name (Z → A)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <p id="empty-state" class="empty-state-box">
+          <span class="empty-icon" aria-hidden="true">💡</span><br>
+          <strong class="empty-title">No projects found.</strong><br>
+          <span class="empty-sub">Add a project above or adjust your search filter to see results!</span>
+        </p>
+
+        <ul id="project-list" class="project-items" aria-label="Projects"></ul>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <p>Student Project Tracker • WebDev Certification Hands-On Engineering Project</p>
+      <p class="footer-tip">Keyboard shortcut: <kbd>Esc</kbd> to cancel editing</p>
+    </footer>
+  </div>
 </body>
 </html>
-
